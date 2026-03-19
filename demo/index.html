@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智能CRM系统 - 沪江网校演示中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 30%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .bg-particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.15);
+            animation: float 20s infinite;
+        }
+        .particle:nth-child(1) { width: 300px; height: 300px; top: 10%; left: -5%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 200px; height: 200px; top: 60%; right: -3%; animation-delay: 5s; background: rgba(139, 92, 246, 0.1); }
+        .particle:nth-child(3) { width: 150px; height: 150px; top: 30%; right: 20%; animation-delay: 10s; background: rgba(59, 130, 246, 0.1); }
+        .particle:nth-child(4) { width: 250px; height: 250px; bottom: 5%; left: 30%; animation-delay: 15s; background: rgba(16, 185, 129, 0.08); }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+        .container {
+            max-width: 1200px; margin: 0 auto; padding: 40px 20px;
+            position: relative; z-index: 1;
+        }
+        .header {
+            text-align: center; margin-bottom: 60px;
+        }
+        .header .logo-area {
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            margin-bottom: 20px;
+        }
+        .header .logo-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: 700;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+        }
+        .header h1 {
+            font-size: 36px; font-weight: 700;
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe, #a5b4fc);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+        .header .subtitle {
+            font-size: 18px; color: rgba(255,255,255,0.5);
+            margin-top: 12px; letter-spacing: 4px;
+        }
+        .header .desc {
+            font-size: 15px; color: rgba(255,255,255,0.4);
+            margin-top: 8px; max-width: 600px; margin-left: auto; margin-right: auto;
+        }
+        .flow-bar {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0; margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+        .flow-step {
+            display: flex; align-items: center; gap: 0;
+        }
+        .flow-node {
+            padding: 8px 18px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            font-size: 13px; color: #a5b4fc;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        .flow-node:hover {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: rgba(99, 102, 241, 0.6);
+            transform: scale(1.05);
+        }
+        .flow-arrow {
+            color: rgba(99, 102, 241, 0.4);
+            font-size: 18px;
+            margin: 0 6px;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
+        .demo-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: #fff;
+            display: block;
+        }
+        .demo-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .demo-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .demo-card:hover::before { opacity: 1; }
+        .card-header {
+            display: flex; align-items: center; gap: 16px;
+            margin-bottom: 20px;
+        }
+        .card-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .card-role {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .card-title {
+            font-size: 18px; font-weight: 600;
+        }
+        .card-desc {
+            font-size: 14px; color: rgba(255,255,255,0.45);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .card-tags {
+            display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .card-tag {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.4);
+        }
+        .card-enter {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; color: var(--accent);
+            margin-top: 20px; font-weight: 500;
+        }
+        .card-enter svg {
+            transition: transform 0.3s;
+        }
+        .demo-card:hover .card-enter svg {
+            transform: translateX(4px);
+        }
+
+        /* Card accent colors */
+        .demo-card:nth-child(1) { --accent: #6366f1; }
+        .demo-card:nth-child(1) .card-icon { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+        .demo-card:nth-child(2) { --accent: #3b82f6; }
+        .demo-card:nth-child(2) .card-icon { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .demo-card:nth-child(3) { --accent: #8b5cf6; }
+        .demo-card:nth-child(3) .card-icon { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+        .demo-card:nth-child(4) { --accent: #10b981; }
+        .demo-card:nth-child(4) .card-icon { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .demo-card:nth-child(5) { --accent: #f59e0b; }
+        .demo-card:nth-child(5) .card-icon { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .footer p {
+            font-size: 13px; color: rgba(255,255,255,0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-area">
+                <div class="logo-icon">AI</div>
+                <h1>AI智能CRM系统</h1>
+            </div>
+            <div class="subtitle">沪江网校 · 演示中心</div>
+            <div class="desc">用AI赋能全流程精细化运营，打通线索到续费的每一个堵点</div>
+        </div>
+
+        <div class="flow-bar">
+            <div class="flow-step">
+                <div class="flow-node">📥 资源录入</div>
+                <div class="flow-arrow">→</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-node">🏷️ 筛选分级</div>
+                <div class="flow-arrow">→</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-node">🎯 智能分配</div>
+                <div class="flow-arrow">→</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-node">📞 资源跟进</div>
+                <div class="flow-arrow">→</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-node">💰 成单转化</div>
+                <div class="flow-arrow">→</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-node">📚 服务交付</div>
+                <div class="flow-arrow">→</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-node">🔄 复购续费</div>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            <a class="demo-card" href="page1-ai-autodial.html">
+                <div class="card-header">
+                    <div class="card-icon">📞</div>
+                    <div>
+                        <div class="card-role">运营角色</div>
+                        <div class="card-title">AI智能外呼 · 闲置资源唤醒</div>
+                    </div>
+                </div>
+                <div class="card-desc">
+                    AI电话机器人自动拨打闲置/低效资源池，通过智能对话筛选出有效资源，预计从闲置资源中盘活30%的有效线索。
+                </div>
+                <div class="card-tags">
+                    <span class="card-tag">AI外呼</span>
+                    <span class="card-tag">资源唤醒</span>
+                    <span class="card-tag">智能筛选</span>
+                </div>
+                <div class="card-enter">
+                    进入演示
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <a class="demo-card" href="page2-customer-list.html">
+                <div class="card-header">
+                    <div class="card-icon">👥</div>
+                    <div>
+                        <div class="card-role">销售角色</div>
+                        <div class="card-title">智能客户列表</div>
+                    </div>
+                </div>
+                <div class="card-desc">
+                    AI基于全局数据实时为销售推送最优线索，按客户意向度、匹配度智能排序，帮助销售聚焦高价值客户。
+                </div>
+                <div class="card-tags">
+                    <span class="card-tag">客户管理</span>
+                    <span class="card-tag">智能排序</span>
+                    <span class="card-tag">线索推荐</span>
+                </div>
+                <div class="card-enter">
+                    进入演示
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <a class="demo-card" href="page3-customer-detail.html">
+                <div class="card-header">
+                    <div class="card-icon">🎯</div>
+                    <div>
+                        <div class="card-role">销售角色</div>
+                        <div class="card-title">客户详情 · AI作战室</div>
+                    </div>
+                </div>
+                <div class="card-desc">
+                    集成一键外呼、AI实时话术助理、双域AI小记（电话+企微），赋能普通销售具备Top Sales的"劝学造梦"能力。
+                </div>
+                <div class="card-tags">
+                    <span class="card-tag">一键外呼</span>
+                    <span class="card-tag">AI助理</span>
+                    <span class="card-tag">AI小记</span>
+                </div>
+                <div class="card-enter">
+                    进入演示
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <a class="demo-card" href="page4-resource-allocation.html">
+                <div class="card-header">
+                    <div class="card-icon">⚙️</div>
+                    <div>
+                        <div class="card-role">运营角色</div>
+                        <div class="card-title">AI资源分配中心</div>
+                    </div>
+                </div>
+                <div class="card-desc">
+                    基于自有数据+大数据标签的资源分级体系，AI自动匹配销售能力与客户等级，实现精准高效的资源下发。
+                </div>
+                <div class="card-tags">
+                    <span class="card-tag">资源分级</span>
+                    <span class="card-tag">大数据标签</span>
+                    <span class="card-tag">AI分配</span>
+                </div>
+                <div class="card-enter">
+                    进入演示
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <a class="demo-card" href="page5-ai-service.html">
+                <div class="card-header">
+                    <div class="card-icon">🤖</div>
+                    <div>
+                        <div class="card-role">交付角色</div>
+                        <div class="card-title">AI客服助手 · 数字员工</div>
+                    </div>
+                </div>
+                <div class="card-desc">
+                    赋予数字员工自定义性格和专属知识库，承担日常回访和课程引导，必要时无缝转接真人，极大提升服务体验。
+                </div>
+                <div class="card-tags">
+                    <span class="card-tag">数字员工</span>
+                    <span class="card-tag">智能客服</span>
+                    <span class="card-tag">知识库</span>
+                </div>
+                <div class="card-enter">
+                    进入演示
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>AI智能CRM系统 · 沪江网校定制演示 · 全流程AI赋能精细化运营</p>
+        </div>
+    </div>
+</body>
+</html>

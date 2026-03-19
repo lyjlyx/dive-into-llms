@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客户详情 · AI作战室 - 沪江网校AI智能CRM</title>
+    <style>
+        /* ========== RESET & BASE ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            color: #1e293b;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; }
+        button { border: none; cursor: pointer; font-family: inherit; font-size: inherit; }
+        input, select, textarea { font-family: inherit; font-size: inherit; }
+
+        /* ========== LAYOUT ========== */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e1e2e 0%, #2d2d44 100%);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+        }
+        .sidebar-logo {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+            flex-shrink: 0;
+        }
+        .sidebar-logo .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-logo .logo-text .name {
+            color: #e2e8f0;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .sidebar-logo .logo-text .sub {
+            color: rgba(255,255,255,0.35);
+            font-size: 11px;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+        .nav-section-label {
+            padding: 16px 20px 8px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            margin: 2px 8px;
+            border-radius: 8px;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.9);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(139,92,246,0.15));
+            color: #a5b4fc;
+            font-weight: 500;
+        }
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 20px;
+            background: #6366f1;
+            border-radius: 0 3px 3px 0;
+        }
+        .nav-item .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .nav-item .nav-badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: #fff;
+            font-size: 11px;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-footer .demo-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+        .sidebar-footer .demo-link:hover {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.7);
+        }
+        .sidebar-footer .version {
+            font-size: 11px;
+            color: rgba(255,255,255,0.25);
+            text-align: center;
+        }
+
+        /* ========== MAIN AREA ========== */
+        .main-area {
+            flex: 1;
+            margin-left: 220px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 72px;
+        }
+
+        /* ========== HEADER ========== */
+        .top-header {
+            height: 60px;
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #6366f1;
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(99,102,241,0.06);
+            transition: all 0.2s;
+        }
+        .back-link:hover {
+            background: rgba(99,102,241,0.12);
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .breadcrumb span.current {
+            color: #334155;
+            font-weight: 500;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .notification-bell {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #64748b;
+            font-size: 18px;
+        }
+        .notification-bell:hover {
+            background: #f1f5f9;
+        }
+        .notification-bell .dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 12px 5px 5px;
+            border-radius: 24px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .user-profile:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .user-info .name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .user-info .role {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* ========== CONTENT WRAPPER ========== */
+        .content-main {
+            padding: 24px 28px;
+        }
+
+        /* ========== CUSTOMER PROFILE CARD ========== */
+        .profile-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px 32px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #3b82f6, #6366f1);
+        }
+        .profile-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+        }
+        .profile-info {
+            flex: 1;
+        }
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .customer-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f472b6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(236,72,153,0.3);
+        }
+        .customer-name-block {
+            display: flex;
+            flex-direction: column;
+        }
+        .customer-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .customer-name .gender-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #fce7f3;
+            color: #db2777;
+            font-weight: 500;
+        }
+        .customer-name .age-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .customer-phone {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 14px 0;
+        }
+        .tag {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .tag.lang { background: #dbeafe; color: #1d4ed8; }
+        .tag.level { background: #ede9fe; color: #6d28d9; }
+        .tag.intent { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #15803d; border: 1px solid #86efac; font-weight: 600; }
+        .tag.location { background: #fef3c7; color: #92400e; }
+        .tag.role { background: #f1f5f9; color: #475569; }
+        .profile-source {
+            font-size: 13px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .profile-source .src-label {
+            color: #94a3b8;
+        }
+        .profile-meta {
+            display: flex;
+            gap: 32px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .meta-item .label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .meta-item .value {
+            font-size: 14px;
+            color: #334155;
+            font-weight: 500;
+        }
+        .meta-item .value .recent {
+            color: #10b981;
+            font-weight: 600;
+        }
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .btn-call {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(16,185,129,0.35), 0 0 0 0 rgba(16,185,129,0.2);
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            animation: callPulse 2.5s ease-in-out infinite;
+        }
+        @keyframes callPulse {
+            0%, 100% { box-shadow: 0 4px 18px rgba(16,185,129,0.35), 0 0 0 0 rgba(16,185,129,0.2); }
+            50% { box-shadow: 0 4px 18px rgba(16,185,129,0.35), 0 0 0 8px rgba(16,185,129,0); }
+        }
+        .btn-call:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(16,185,129,0.45);
+        }
+        .profile-secondary-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-secondary {
+            padding: 8px 16px;
+            background: #fff;
+            color: #475569;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+            background: rgba(99,102,241,0.03);
+        }
+
+        /* ========== THREE COLUMN LAYOUT ========== */
+        .three-col {
+            display: grid;
+            grid-template-columns: 40fr 35fr 25fr;
+            gap: 20px;
+        }
+
+        /* ========== TIMELINE COLUMN ========== */
+        .col-panel {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 18px 22px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .panel-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-header .count {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        .panel-body {
+            padding: 20px 22px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 28px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 12px;
+            bottom: 12px;
+            width: 2px;
+            background: linear-gradient(180deg, #6366f1, #c7d2fe, #e2e8f0);
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 28px;
+        }
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -28px;
+            top: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            z-index: 2;
+        }
+        .timeline-dot.call {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+        }
+        .timeline-dot.chat {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+        }
+        .timeline-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .timeline-title .duration {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        .timeline-time {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .timeline-body {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 14px 16px;
+            border: 1px solid #f1f5f9;
+        }
+        .ai-note-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #7c3aed;
+            background: linear-gradient(135deg, #ede9fe, #e0e7ff);
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .ai-note-text {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.7;
+        }
+        .timeline-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .kw-tag {
+            font-size: 11px;
+            color: #6366f1;
+            background: rgba(99,102,241,0.06);
+            padding: 2px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(99,102,241,0.12);
+        }
+
+        /* ========== AI ASSISTANT PANEL ========== */
+        .ai-panel {
+            background: linear-gradient(180deg, #faf5ff 0%, #f5f3ff 40%, #eef2ff 100%);
+            border: 1px solid #e0e7ff;
+        }
+        .ai-panel .panel-header {
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            border-bottom: none;
+            padding: 16px 22px;
+        }
+        .ai-panel .panel-header h3 {
+            color: #fff;
+            font-size: 15px;
+        }
+        .ai-panel .panel-header .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+        }
+        .ai-panel .panel-header .ai-status .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #34d399;
+            border-radius: 50%;
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .ai-panel .panel-body {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 340px);
+            min-height: 480px;
+        }
+        .ai-chat-stream {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 20px;
+        }
+        .ai-msg {
+            margin-bottom: 18px;
+        }
+        .ai-msg:last-child {
+            margin-bottom: 0;
+        }
+        .ai-msg-system {
+            text-align: center;
+            margin: 12px 0;
+        }
+        .ai-msg-system span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #7c3aed;
+            background: rgba(124,58,237,0.08);
+            padding: 5px 16px;
+            border-radius: 16px;
+        }
+        .ai-msg-system .typing-dots {
+            display: inline-flex;
+            gap: 3px;
+        }
+        .ai-msg-system .typing-dots span {
+            width: 5px;
+            height: 5px;
+            background: #7c3aed;
+            border-radius: 50%;
+            padding: 0;
+            animation: typingBounce 1.4s ease-in-out infinite;
+        }
+        .ai-msg-system .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .ai-msg-system .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+            40% { transform: translateY(-5px); opacity: 1; }
+        }
+        .ai-msg-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px 18px;
+            border: 1px solid #e0e7ff;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.06);
+        }
+        .ai-msg-card .ai-msg-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4338ca;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ai-msg-card p {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.7;
+            margin-bottom: 4px;
+        }
+        .ai-msg-card .strategy-list {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0;
+        }
+        .ai-msg-card .strategy-list li {
+            font-size: 13px;
+            color: #475569;
+            padding: 6px 0;
+            border-bottom: 1px dashed #f1f5f9;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.6;
+        }
+        .ai-msg-card .strategy-list li:last-child {
+            border-bottom: none;
+        }
+        .ai-msg-card .strategy-list .step-num {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .ai-msg-card .talk-script {
+            background: #faf5ff;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 6px 0;
+            border-left: 3px solid #8b5cf6;
+        }
+        .ai-msg-card .talk-script p {
+            font-size: 13px;
+            color: #6d28d9;
+            font-style: italic;
+            line-height: 1.8;
+        }
+        .ai-msg-card .warn-list {
+            list-style: none;
+            padding: 0;
+        }
+        .ai-msg-card .warn-list li {
+            font-size: 13px;
+            color: #475569;
+            padding: 5px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            line-height: 1.6;
+        }
+        .ai-msg-card .warn-list li .warn-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f59e0b;
+            flex-shrink: 0;
+            margin-top: 7px;
+        }
+        .ai-msg-card .price-highlight {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .ai-msg-card .price-old {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+        .ai-input-area {
+            padding: 14px 18px;
+            border-top: 1px solid #e0e7ff;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #fff;
+            border-radius: 0 0 14px 14px;
+        }
+        .ai-input-area input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .ai-input-area input::placeholder {
+            color: #94a3b8;
+        }
+        .ai-input-area input:focus {
+            border-color: #6366f1;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+        }
+        .ai-input-area .btn-send {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border-radius: 10px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .ai-input-area .btn-send:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+        }
+
+        /* ========== DATA PANEL (RIGHT COLUMN) ========== */
+        .data-panel .panel-body {
+            padding: 16px 18px;
+        }
+        .data-section {
+            margin-bottom: 20px;
+        }
+        .data-section:last-child {
+            margin-bottom: 0;
+        }
+        .data-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .data-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 0;
+        }
+        .data-row .data-label {
+            font-size: 13px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .data-row .data-value {
+            font-size: 13px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        .data-row .data-value.highlight {
+            color: #10b981;
+            font-weight: 600;
+        }
+        .data-row .star-rating {
+            color: #f59e0b;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        .data-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .data-tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        .data-tag.t1 { background: #dcfce7; color: #15803d; }
+        .data-tag.t2 { background: #dbeafe; color: #1d4ed8; }
+        .data-tag.t3 { background: #fce7f3; color: #be185d; }
+        .data-tag.t4 { background: #fef3c7; color: #92400e; }
+        .data-tag.t5 { background: #f1f5f9; color: #475569; }
+        .data-tag.t6 { background: #ede9fe; color: #6d28d9; }
+
+        /* Opportunity */
+        .opportunity-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+        }
+        .opp-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0;
+        }
+        .opp-row .opp-label {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .opp-row .opp-value {
+            font-size: 13px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        .conversion-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+        }
+        .progress-ring-container {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+        }
+        .progress-ring-bg {
+            fill: none;
+            stroke: #e2e8f0;
+            stroke-width: 5;
+        }
+        .progress-ring-fg {
+            fill: none;
+            stroke: url(#greenGrad);
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-dasharray: 126;
+            stroke-dashoffset: 16.38;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 0.6s ease;
+        }
+        .progress-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: 700;
+            color: #10b981;
+        }
+        .conversion-info {
+            flex: 1;
+        }
+        .conversion-info .ci-label {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .conversion-info .ci-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .conversion-info .ci-sub .ai-icon {
+            color: #7c3aed;
+        }
+
+        /* Plan Generator */
+        .plan-card {
+            background: linear-gradient(135deg, #f5f3ff, #eef2ff);
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid #e0e7ff;
+        }
+        .plan-card .plan-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .plan-card .plan-header .plan-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4338ca;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .plan-card .plan-header .plan-count {
+            font-size: 11px;
+            color: #7c3aed;
+            background: rgba(124,58,237,0.1);
+            padding: 2px 10px;
+            border-radius: 10px;
+        }
+        .btn-generate {
+            width: 100%;
+            padding: 10px 0;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 14px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+        }
+        .btn-generate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+        }
+        .plan-list {
+            list-style: none;
+        }
+        .plan-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border: 1px solid #e0e7ff;
+        }
+        .plan-item:last-child {
+            margin-bottom: 0;
+        }
+        .plan-item .plan-name {
+            font-size: 12px;
+            color: #334155;
+            font-weight: 500;
+        }
+        .plan-item .plan-name .plan-label {
+            color: #6366f1;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+        .plan-item .plan-detail {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .plan-item .plan-price {
+            font-size: 13px;
+            color: #dc2626;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* ========== CALL CONTROL BAR ========== */
+        .call-bar {
+            position: fixed;
+            bottom: 0;
+            left: 220px;
+            right: 0;
+            height: 68px;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 200;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .call-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .call-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .call-pulse {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: callStatusPulse 1.2s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(16,185,129,0.5);
+        }
+        @keyframes callStatusPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+            50% { opacity: 0.6; box-shadow: 0 0 16px rgba(16,185,129,0.8); }
+        }
+        .call-status-text {
+            color: #10b981;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .call-target {
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        .call-target .call-name {
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .call-target .call-phone {
+            color: #94a3b8;
+        }
+        .call-duration {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #e2e8f0;
+        }
+        .call-duration .dur-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .call-duration .dur-time {
+            font-size: 22px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: #fff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(99,102,241,0.3);
+        }
+        .call-ai-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 20px;
+        }
+        .call-ai-status .ai-pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #a5b4fc;
+            animation: aiPulseAnim 1s ease-in-out infinite;
+        }
+        @keyframes aiPulseAnim {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .call-ai-status span {
+            font-size: 12px;
+            color: #a5b4fc;
+            font-weight: 500;
+        }
+        .call-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .call-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .call-btn.mute {
+            background: rgba(255,255,255,0.08);
+            color: #e2e8f0;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .call-btn.mute:hover {
+            background: rgba(255,255,255,0.14);
+        }
+        .call-btn.hold {
+            background: rgba(255,255,255,0.08);
+            color: #e2e8f0;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .call-btn.hold:hover {
+            background: rgba(255,255,255,0.14);
+        }
+        .call-btn.transfer {
+            background: rgba(255,255,255,0.08);
+            color: #e2e8f0;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .call-btn.transfer:hover {
+            background: rgba(255,255,255,0.14);
+        }
+        .call-btn.hangup {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            padding: 8px 24px;
+            box-shadow: 0 2px 10px rgba(239,68,68,0.35);
+        }
+        .call-btn.hangup:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(239,68,68,0.45);
+        }
+
+        /* ========== WAVE ANIMATION ========== */
+        .wave-bars {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 18px;
+        }
+        .wave-bars span {
+            width: 3px;
+            background: #a5b4fc;
+            border-radius: 2px;
+            animation: waveBar 1.2s ease-in-out infinite;
+        }
+        .wave-bars span:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .wave-bars span:nth-child(2) { height: 14px; animation-delay: 0.15s; }
+        .wave-bars span:nth-child(3) { height: 6px; animation-delay: 0.3s; }
+        .wave-bars span:nth-child(4) { height: 16px; animation-delay: 0.45s; }
+        .wave-bars span:nth-child(5) { height: 10px; animation-delay: 0.6s; }
+        @keyframes waveBar {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.4); }
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1400px) {
+            .three-col {
+                grid-template-columns: 1fr 1fr;
+            }
+            .data-panel {
+                grid-column: 1 / -1;
+            }
+        }
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .main-area { margin-left: 0; }
+            .call-bar { left: 0; }
+            .three-col { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">沪</div>
+            <div class="logo-text">
+                <span class="name">沪江网校</span>
+                <span class="sub">AI Smart CRM</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">工作台</div>
+            <a href="page1-ai-autodial.html" class="nav-item">
+                <span class="nav-icon">📞</span>
+                <span>AI智能外呼</span>
+            </a>
+            <a class="nav-item active">
+                <span class="nav-icon">👥</span>
+                <span>我的客户</span>
+                <span class="nav-badge">128</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span>任务中心</span>
+                <span class="nav-badge">5</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">💬</span>
+                <span>企微消息</span>
+                <span class="nav-badge">12</span>
+            </a>
+
+            <div class="nav-section-label">数据分析</div>
+            <a class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>销售看板</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">🎯</span>
+                <span>转化漏斗</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span>业绩报表</span>
+            </a>
+
+            <div class="nav-section-label">AI能力</div>
+            <a class="nav-item">
+                <span class="nav-icon">🤖</span>
+                <span>AI销售助理</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span>智能话术库</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">🎓</span>
+                <span>学习方案</span>
+            </a>
+
+            <div class="nav-section-label">系统</div>
+            <a class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span>系统设置</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="index.html" class="demo-link">🏠 返回演示中心</a>
+            <div class="version">v3.2.1 · AI CRM Pro</div>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN AREA ===== -->
+    <main class="main-area">
+        <!-- ===== TOP HEADER ===== -->
+        <header class="top-header">
+            <div class="header-left">
+                <a href="page2-customer-list.html" class="back-link">← 返回客户列表</a>
+                <div class="breadcrumb">
+                    <span>CRM</span>
+                    <span>/</span>
+                    <span>我的客户</span>
+                    <span>/</span>
+                    <span class="current">王思雨</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell">
+                    🔔
+                    <div class="dot"></div>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">李</div>
+                    <div class="user-info">
+                        <div class="name">李思琪</div>
+                        <div class="role">销售顾问</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== CONTENT ===== -->
+        <div class="content-main">
+            <!-- ===== SECTION 1: CUSTOMER PROFILE CARD ===== -->
+            <div class="profile-card">
+                <div class="profile-top">
+                    <div class="profile-info">
+                        <div class="profile-name-row">
+                            <div class="customer-avatar">王</div>
+                            <div class="customer-name-block">
+                                <div class="customer-name">
+                                    王思雨
+                                    <span class="gender-badge">♀ 女</span>
+                                    <span class="age-badge">26岁</span>
+                                </div>
+                                <div class="customer-phone">📱 138****7621</div>
+                            </div>
+                        </div>
+                        <div class="profile-tags">
+                            <span class="tag lang">🇯🇵 日语</span>
+                            <span class="tag level">N2意向</span>
+                            <span class="tag intent">🔥 高意向S级</span>
+                            <span class="tag location">📍 上海</span>
+                            <span class="tag role">💼 在职白领</span>
+                        </div>
+                        <div class="profile-source">
+                            <span class="src-label">来源:</span>
+                            <span>沪江APP · 免费课领取</span>
+                        </div>
+                        <div class="profile-meta">
+                            <div class="meta-item">
+                                <span class="label">首次接触</span>
+                                <span class="value">2025-05-20</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="label">最近活跃</span>
+                                <span class="value"><span class="recent">2小时前</span></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="label">累计通话</span>
+                                <span class="value">3次</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="label">累计时长</span>
+                                <span class="value">18分32秒</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button class="btn-call">📞 一键外呼</button>
+                        <div class="profile-secondary-actions">
+                            <button class="btn-secondary">💬 发送企微消息</button>
+                            <button class="btn-secondary">📄 生成学习方案</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== SECTION 2: THREE-COLUMN LAYOUT ===== -->
+            <div class="three-col">
+                <!-- ===== LEFT COLUMN: TIMELINE ===== -->
+                <div class="col-panel">
+                    <div class="panel-header">
+                        <h3>📋 跟进时间线 <span class="count">共 4 条记录</span></h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="timeline">
+                            <!-- Timeline Item 1: Today's Call -->
+                            <div class="timeline-item">
+                                <div class="timeline-dot call">📞</div>
+                                <div class="timeline-head">
+                                    <div class="timeline-title">
+                                        第3次通话
+                                        <span class="duration">(6分18秒)</span>
+                                    </div>
+                                    <div class="timeline-time">今天 14:23</div>
+                                </div>
+                                <div class="timeline-body">
+                                    <div class="ai-note-badge">🤖 AI自动生成</div>
+                                    <div class="ai-note-text">
+                                        客户已完成试听课，反馈满意。对N2全程班感兴趣，询问了课程时长和价格。客户表示需要考虑分期付款。建议下次沟通重点推荐3期免息方案。
+                                    </div>
+                                    <div class="timeline-keywords">
+                                        <span class="kw-tag">#试听满意</span>
+                                        <span class="kw-tag">#价格考虑</span>
+                                        <span class="kw-tag">#分期需求</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Item 2: Today's Chat -->
+                            <div class="timeline-item">
+                                <div class="timeline-dot chat">💬</div>
+                                <div class="timeline-head">
+                                    <div class="timeline-title">
+                                        企微聊天
+                                    </div>
+                                    <div class="timeline-time">今天 11:05</div>
+                                </div>
+                                <div class="timeline-body">
+                                    <div class="ai-note-badge">🤖 AI自动生成</div>
+                                    <div class="ai-note-text">
+                                        客户主动询问N2课程大纲和师资情况，发送了课程详情PDF。客户阅读后回复"内容很全面"。
+                                    </div>
+                                    <div class="timeline-keywords">
+                                        <span class="kw-tag">#主动咨询</span>
+                                        <span class="kw-tag">#课程认可</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Item 3: Yesterday's Call -->
+                            <div class="timeline-item">
+                                <div class="timeline-dot call">📞</div>
+                                <div class="timeline-head">
+                                    <div class="timeline-title">
+                                        第2次通话
+                                        <span class="duration">(5分42秒)</span>
+                                    </div>
+                                    <div class="timeline-time">昨天 15:40</div>
+                                </div>
+                                <div class="timeline-body">
+                                    <div class="ai-note-badge">🤖 AI自动生成</div>
+                                    <div class="ai-note-text">
+                                        安排了今天的试听课。客户对AI互动教学模式很感兴趣，主动问了学习时间安排。日常工作忙，偏好晚间和周末时段。
+                                    </div>
+                                    <div class="timeline-keywords">
+                                        <span class="kw-tag">#试听预约</span>
+                                        <span class="kw-tag">#碎片时间</span>
+                                        <span class="kw-tag">#周末偏好</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Item 4: First Call -->
+                            <div class="timeline-item">
+                                <div class="timeline-dot call">📞</div>
+                                <div class="timeline-head">
+                                    <div class="timeline-title">
+                                        第1次通话
+                                        <span class="duration">(6分32秒)</span>
+                                    </div>
+                                    <div class="timeline-time">2025-06-01 10:15</div>
+                                </div>
+                                <div class="timeline-body">
+                                    <div class="ai-note-badge">🤖 AI自动生成</div>
+                                    <div class="ai-note-text">
+                                        首次接通，客户半年前就有学日语的想法，因为喜欢日本动漫文化。之前自学过五十音但没坚持。目标是能看懂日语原版动漫和赴日旅游基本交流。
+                                    </div>
+                                    <div class="timeline-keywords">
+                                        <span class="kw-tag">#动漫兴趣</span>
+                                        <span class="kw-tag">#自学经历</span>
+                                        <span class="kw-tag">#旅游需求</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== MIDDLE COLUMN: AI ASSISTANT ===== -->
+                <div class="col-panel ai-panel">
+                    <div class="panel-header">
+                        <h3>🤖 AI销售助理</h3>
+                        <div class="ai-status">
+                            <div class="pulse-dot"></div>
+                            实时分析中
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="ai-chat-stream">
+                            <!-- System Message -->
+                            <div class="ai-msg ai-msg-system">
+                                <span>
+                                    正在分析客户王思雨的历史数据和行为轨迹
+                                    <div class="typing-dots">
+                                        <span></span><span></span><span></span>
+                                    </div>
+                                </span>
+                            </div>
+
+                            <!-- AI Message: Customer Profile Analysis -->
+                            <div class="ai-msg">
+                                <div class="ai-msg-card">
+                                    <div class="ai-msg-title">📊 客户画像分析</div>
+                                    <p>王思雨，26岁在职白领，日语学习动机：<strong>动漫文化 + 旅游需求</strong>。已完成试听，反馈积极。</p>
+                                    <p style="margin-top: 6px;">当前卡点：<span style="color: #dc2626; font-weight: 600;">价格考虑</span>，需要分期方案打消顾虑。</p>
+                                </div>
+                            </div>
+
+                            <!-- AI Message: Strategy -->
+                            <div class="ai-msg">
+                                <div class="ai-msg-card">
+                                    <div class="ai-msg-title">🎯 推荐策略</div>
+                                    <ol class="strategy-list">
+                                        <li>
+                                            <span class="step-num">1</span>
+                                            <span><strong>开场：</strong>回顾试听体验，肯定她的学习热情</span>
+                                        </li>
+                                        <li>
+                                            <span class="step-num">2</span>
+                                            <span><strong>痛点：</strong>强调N2证书对日企就业的加分作用（扩大需求）</span>
+                                        </li>
+                                        <li>
+                                            <span class="step-num">3</span>
+                                            <span><strong>方案：</strong>推荐N2全程班（12个月套餐，<span class="price-old">原价 ¥6,980</span> → <span class="price-highlight">活动价 ¥5,580</span>）</span>
+                                        </li>
+                                        <li>
+                                            <span class="step-num">4</span>
+                                            <span><strong>促单：</strong>3期免息分期，每月仅 <span class="price-highlight">¥1,860</span></span>
+                                        </li>
+                                        <li>
+                                            <span class="step-num">5</span>
+                                            <span><strong>紧迫感：</strong>本月活动名额仅剩 <span class="price-highlight">15个</span></span>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <!-- AI Message: Talk Scripts -->
+                            <div class="ai-msg">
+                                <div class="ai-msg-card">
+                                    <div class="ai-msg-title">💡 话术建议</div>
+                                    <div class="talk-script">
+                                        <p>"思雨你好！昨天的试听课感觉怎么样？老师讲得还习惯吗？......"</p>
+                                    </div>
+                                    <div class="talk-script">
+                                        <p>"对了，你有没有想过，学好日语不只是看懂动漫，N2证书在日企求职中可是很大的加分项呢！"</p>
+                                    </div>
+                                    <div class="talk-script">
+                                        <p>"价格方面你完全不用担心，我们现在有3期免息，每个月不到两千块，比你一个月的奶茶钱还少呢~"</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI Message: Warnings -->
+                            <div class="ai-msg">
+                                <div class="ai-msg-card">
+                                    <div class="ai-msg-title">⚠️ 注意事项</div>
+                                    <ul class="warn-list">
+                                        <li><div class="warn-dot"></div><span>客户对价格敏感，避免一上来就报全价</span></li>
+                                        <li><div class="warn-dot"></div><span>客户是自学过的，要肯定之前的努力</span></li>
+                                        <li><div class="warn-dot"></div><span>可以提及同龄学员的成功案例增强信心</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input Area -->
+                        <div class="ai-input-area">
+                            <input type="text" placeholder="输入问题让AI助理帮你分析..." />
+                            <button class="btn-send">发送 ➤</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== RIGHT COLUMN: DATA PANEL ===== -->
+                <div class="col-panel data-panel">
+                    <div class="panel-header">
+                        <h3>📈 客户数据面板</h3>
+                    </div>
+                    <div class="panel-body">
+                        <!-- Behavior Data -->
+                        <div class="data-section">
+                            <div class="data-section-title">📱 行为数据</div>
+                            <div class="data-row">
+                                <span class="data-label">APP访问</span>
+                                <span class="data-value highlight">最近7天 6次</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">免费课</span>
+                                <span class="data-value">已领取 3门</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">做题记录</span>
+                                <span class="data-value">N3真题 完成率 <span style="color:#6366f1;font-weight:600;">85%</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">试听课</span>
+                                <span class="data-value">已完成 <span class="star-rating">★★★★★</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">页面停留</span>
+                                <span class="data-value">平均 <strong>8.5分钟</strong>/次</span>
+                            </div>
+                        </div>
+
+                        <!-- Big Data Tags -->
+                        <div class="data-section">
+                            <div class="data-section-title">🏷️ 大数据标签</div>
+                            <div class="data-tags">
+                                <span class="data-tag t1">高购买力</span>
+                                <span class="data-tag t2">活跃用户</span>
+                                <span class="data-tag t3">日语爱好者</span>
+                                <span class="data-tag t4">动漫圈</span>
+                                <span class="data-tag t5">上海白领</span>
+                                <span class="data-tag t6">碎片学习者</span>
+                            </div>
+                        </div>
+
+                        <!-- Opportunity -->
+                        <div class="data-section">
+                            <div class="data-section-title">💰 商机信息</div>
+                            <div class="opportunity-card">
+                                <div class="opp-row">
+                                    <span class="opp-label">意向课程</span>
+                                    <span class="opp-value" style="color: #6366f1;">N2全程班</span>
+                                </div>
+                                <div class="opp-row">
+                                    <span class="opp-label">预估客单价</span>
+                                    <span class="opp-value" style="color: #dc2626;">¥5,580 - ¥6,980</span>
+                                </div>
+                                <div class="conversion-row">
+                                    <div class="progress-ring-container">
+                                        <svg width="48" height="48" viewBox="0 0 48 48">
+                                            <defs>
+                                                <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#10b981" />
+                                                    <stop offset="100%" style="stop-color:#34d399" />
+                                                </linearGradient>
+                                            </defs>
+                                            <circle class="progress-ring-bg" cx="24" cy="24" r="20" />
+                                            <circle class="progress-ring-fg" cx="24" cy="24" r="20" />
+                                        </svg>
+                                        <div class="progress-ring-text">87%</div>
+                                    </div>
+                                    <div class="conversion-info">
+                                        <div class="ci-label" style="font-weight: 600; color: #10b981;">转化概率 87%</div>
+                                        <div class="ci-sub">
+                                            <span class="ai-icon">🤖</span> AI预测 · 高置信度
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="opp-row">
+                                    <span class="opp-label">预计成单</span>
+                                    <span class="opp-value" style="color: #10b981; font-weight: 600;">3天内</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Plan Generator -->
+                        <div class="data-section">
+                            <div class="data-section-title">📋 学习方案生成器</div>
+                            <div class="plan-card">
+                                <div class="plan-header">
+                                    <span class="plan-title">🤖 定制方案</span>
+                                    <span class="plan-count">已生成 3 套</span>
+                                </div>
+                                <button class="btn-generate">✨ 一键生成定制方案</button>
+                                <ul class="plan-list">
+                                    <li class="plan-item">
+                                        <div class="plan-name">
+                                            <span class="plan-label">方案A</span>
+                                            N2全程班
+                                            <div class="plan-detail">12个月</div>
+                                        </div>
+                                        <span class="plan-price">¥5,580</span>
+                                    </li>
+                                    <li class="plan-item">
+                                        <div class="plan-name">
+                                            <span class="plan-label">方案B</span>
+                                            N2签约班
+                                            <div class="plan-detail">18个月</div>
+                                        </div>
+                                        <span class="plan-price">¥7,980</span>
+                                    </li>
+                                    <li class="plan-item">
+                                        <div class="plan-name">
+                                            <span class="plan-label">方案C</span>
+                                            N2+N1连报班
+                                            <div class="plan-detail">24个月</div>
+                                        </div>
+                                        <span class="plan-price">¥9,980</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ===== CALL CONTROL BAR ===== -->
+<div class="call-bar">
+    <div class="call-info">
+        <div class="call-status-indicator">
+            <div class="call-pulse"></div>
+            <span class="call-status-text">通话中</span>
+        </div>
+        <div class="call-target">
+            <span class="call-name">王思雨</span>
+            <span class="call-phone">138****7621</span>
+        </div>
+    </div>
+    <div class="call-duration">
+        <span class="dur-label">通话时长</span>
+        <span class="dur-time" id="callTimer">03:28</span>
+        <div class="wave-bars">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+    </div>
+    <div class="call-ai-status">
+        <div class="ai-pulse"></div>
+        <span>AI实时分析中...</span>
+    </div>
+    <div class="call-controls">
+        <button class="call-btn mute">🔇 静音</button>
+        <button class="call-btn hold">⏸ 保持</button>
+        <button class="call-btn transfer">↗ 转接</button>
+        <button class="call-btn hangup">📞 挂断</button>
+    </div>
+</div>
+
+<script>
+    // Simulate call timer ticking
+    (function() {
+        let minutes = 3;
+        let seconds = 28;
+        const timerEl = document.getElementById('callTimer');
+        setInterval(function() {
+            seconds++;
+            if (seconds >= 60) {
+                seconds = 0;
+                minutes++;
+            }
+            timerEl.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        }, 1000);
+    })();
+</script>
+</body>
+</html>

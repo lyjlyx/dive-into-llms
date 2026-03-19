@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客户列表 - 沪江网校AI智能CRM</title>
+    <style>
+        /* ========== RESET & BASE ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            color: #1e293b;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; }
+        button { border: none; cursor: pointer; font-family: inherit; font-size: inherit; }
+        input, select { font-family: inherit; font-size: inherit; }
+
+        /* ========== LAYOUT ========== */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e1e2e 0%, #2d2d44 100%);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+        }
+        .sidebar-logo {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+            flex-shrink: 0;
+        }
+        .sidebar-logo .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-logo .logo-text .name {
+            color: #e2e8f0;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .sidebar-logo .logo-text .sub {
+            color: rgba(255,255,255,0.35);
+            font-size: 11px;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+        }
+        .nav-section-label {
+            padding: 16px 20px 8px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            margin: 2px 8px;
+            border-radius: 8px;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.9);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(139,92,246,0.15));
+            color: #a5b4fc;
+            font-weight: 500;
+        }
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 20px;
+            background: #6366f1;
+            border-radius: 0 3px 3px 0;
+        }
+        .nav-item .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .nav-item .nav-badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: #fff;
+            font-size: 11px;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-footer .version {
+            font-size: 11px;
+            color: rgba(255,255,255,0.25);
+            text-align: center;
+        }
+
+        /* ========== MAIN AREA ========== */
+        .main-area {
+            flex: 1;
+            margin-left: 220px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ========== HEADER ========== */
+        .top-header {
+            height: 60px;
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #6366f1;
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(99,102,241,0.06);
+            transition: all 0.2s;
+        }
+        .back-link:hover {
+            background: rgba(99,102,241,0.12);
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .breadcrumb span.current {
+            color: #334155;
+            font-weight: 500;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .today-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #fcd34d;
+        }
+        .today-badge .count {
+            background: #f59e0b;
+            color: #fff;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .notification-bell {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #64748b;
+            font-size: 18px;
+        }
+        .notification-bell:hover {
+            background: #f1f5f9;
+        }
+        .notification-bell .dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 12px 5px 5px;
+            border-radius: 24px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .user-profile:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .user-info .name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .user-info .role {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* ========== CONTENT ========== */
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+        }
+        .content-main {
+            flex: 1;
+            padding: 24px 28px;
+            min-width: 0;
+        }
+
+        /* ========== PAGE TITLE ========== */
+        .page-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .page-title-bar h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .page-title-bar h1 .icon {
+            margin-right: 8px;
+        }
+        .page-title-bar .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-primary {
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+        }
+        .btn-outline {
+            padding: 8px 18px;
+            background: #fff;
+            color: #475569;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-outline:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+            background: rgba(99,102,241,0.03);
+        }
+
+        /* ========== TABS ========== */
+        .tab-bar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #fff;
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .tab-item {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .tab-item:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        .tab-item.active {
+            background: #6366f1;
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+        }
+        .tab-item .tab-count {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .tab-item.active .tab-count {
+            background: rgba(255,255,255,0.2);
+            padding: 1px 6px;
+            border-radius: 8px;
+        }
+        .tab-item .ai-spark {
+            display: inline-flex;
+            font-size: 12px;
+        }
+
+        /* ========== FILTER BAR ========== */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            position: relative;
+            flex: 0 0 260px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 9px 14px 9px 38px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+            background: #fff;
+            color: #334155;
+            transition: all 0.2s;
+        }
+        .search-box input::placeholder {
+            color: #94a3b8;
+        }
+        .search-box input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        .search-box .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 15px;
+        }
+        .filter-select {
+            padding: 9px 32px 9px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            color: #475569;
+            outline: none;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            transition: all 0.2s;
+        }
+        .filter-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        .sort-btn {
+            padding: 9px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+        .sort-btn.ai-sort {
+            background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08));
+            border: 1px solid rgba(99,102,241,0.3);
+            color: #6366f1;
+            font-weight: 500;
+        }
+        .sort-btn.ai-sort:hover {
+            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15));
+        }
+        .sort-btn .spark {
+            font-size: 14px;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        /* ========== AI RECOMMENDATION BANNER ========== */
+        .ai-banner {
+            background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(139,92,246,0.04) 50%, rgba(236,72,153,0.04) 100%);
+            border: 1px solid rgba(99,102,241,0.15);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .ai-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .ai-banner .ai-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(99,102,241,0.3);
+        }
+        .ai-banner .ai-content {
+            flex: 1;
+        }
+        .ai-banner .ai-title {
+            font-weight: 600;
+            color: #4338ca;
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ai-banner .ai-title .badge {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        .ai-banner .ai-desc {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .ai-banner .ai-desc .highlight {
+            color: #6366f1;
+            font-weight: 500;
+        }
+        .ai-banner .ai-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .ai-banner .ai-close:hover {
+            background: rgba(0,0,0,0.05);
+            color: #64748b;
+        }
+
+        /* ========== TABLE ========== */
+        .table-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table thead {
+            background: #f8fafc;
+        }
+        .data-table thead th {
+            padding: 13px 16px;
+            text-align: left;
+            font-weight: 500;
+            color: #64748b;
+            font-size: 13px;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+        .data-table thead th.ai-col {
+            background: rgba(99,102,241,0.04);
+        }
+        .data-table tbody tr {
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .data-table tbody td {
+            padding: 14px 16px;
+            color: #334155;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        .customer-name {
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .customer-name:hover {
+            color: #6366f1;
+        }
+        .phone-masked {
+            color: #64748b;
+            font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+            font-size: 13px;
+        }
+
+        /* Language Tags */
+        .lang-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .lang-tag.jp {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .lang-tag.en {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+        .lang-tag.kr {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+        .lang-tag.fr {
+            background: #faf5ff;
+            color: #9333ea;
+            border: 1px solid #e9d5ff;
+        }
+
+        /* Level Badges */
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .level-badge.level-s {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+        .level-badge.level-s::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            margin-right: 6px;
+            animation: pulse-dot 2s ease infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(239,68,68,0); }
+        }
+        .level-badge.level-a {
+            background: #fffbeb;
+            color: #d97706;
+            border: 1px solid #fcd34d;
+        }
+        .level-badge.level-a::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f59e0b;
+            margin-right: 6px;
+        }
+        .level-badge.level-b {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #93c5fd;
+        }
+        .level-badge.level-b::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #3b82f6;
+            margin-right: 6px;
+        }
+        .level-badge.level-c {
+            background: #f9fafb;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+        .level-badge.level-c::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #9ca3af;
+            margin-right: 6px;
+        }
+        .level-badge.level-d {
+            background: #f9fafb;
+            color: #9ca3af;
+            border: 1px solid #e5e7eb;
+        }
+        .level-badge.level-d::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #d1d5db;
+            margin-right: 6px;
+        }
+
+        /* Stage Tags */
+        .stage-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        .stage-tag.hot {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        .stage-tag.warm {
+            background: #fffbeb;
+            color: #d97706;
+            border-color: #fcd34d;
+        }
+        .stage-tag.active {
+            background: #f0fdf4;
+            color: #16a34a;
+            border-color: #bbf7d0;
+        }
+
+        /* AI Insight Column */
+        .ai-insight-cell {
+            background: rgba(99,102,241,0.02);
+        }
+        .ai-insight {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 12px;
+            color: #6366f1;
+            line-height: 1.5;
+        }
+        .ai-insight .insight-icon {
+            flex-shrink: 0;
+            margin-top: 1px;
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        .ai-insight .insight-text {
+            color: #4f46e5;
+            font-weight: 500;
+        }
+
+        /* Active Time */
+        .active-time {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+            font-size: 13px;
+        }
+        .active-time .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+        .active-time .dot.online { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+        .active-time .dot.recent { background: #f59e0b; }
+        .active-time .dot.away { background: #94a3b8; }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-call {
+            padding: 5px 14px;
+            background: #10b981;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .btn-call:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(16,185,129,0.3);
+        }
+        .btn-detail {
+            padding: 5px 14px;
+            background: #fff;
+            color: #6366f1;
+            border: 1px solid #c7d2fe;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .btn-detail:hover {
+            background: #eef2ff;
+            border-color: #6366f1;
+            transform: translateY(-1px);
+        }
+
+        /* ========== PAGINATION ========== */
+        .pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: #fff;
+            border-top: 1px solid #f1f5f9;
+            border-radius: 0 0 12px 12px;
+        }
+        .pagination-info {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .page-btn {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+        .page-btn:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+        .page-btn.active {
+            background: #6366f1;
+            color: #fff;
+            border-color: #6366f1;
+        }
+        .page-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ========== RIGHT SIDEBAR - AI PANEL ========== */
+        .ai-sidebar {
+            width: 300px;
+            background: #fff;
+            border-left: 1px solid #e5e7eb;
+            padding: 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 60px);
+            position: sticky;
+            top: 60px;
+        }
+        .ai-sidebar-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ai-sidebar-header .title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .ai-sidebar-header .title .icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+        .ai-sidebar-header .collapse-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+        .ai-sidebar-header .collapse-btn:hover {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        .ai-sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+        .ai-section {
+            margin-bottom: 24px;
+        }
+        .ai-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .ai-section-title .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #6366f1;
+        }
+        .ai-suggestion-card {
+            padding: 12px 14px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .ai-suggestion-card:hover {
+            border-color: #c7d2fe;
+            background: #fafafe;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+        }
+        .ai-suggestion-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .ai-suggestion-card .card-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1e293b;
+        }
+        .ai-suggestion-card .card-tag {
+            font-size: 11px;
+            padding: 1px 7px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .ai-suggestion-card .card-tag.urgent {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .ai-suggestion-card .card-tag.recommend {
+            background: #eef2ff;
+            color: #6366f1;
+        }
+        .ai-suggestion-card .card-desc {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .ai-suggestion-card .card-desc strong {
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        .ai-data-insight {
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.04), rgba(139,92,246,0.04));
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(99,102,241,0.1);
+        }
+        .ai-data-insight .insight-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .ai-data-insight .insight-row + .insight-row {
+            margin-top: 8px;
+        }
+        .ai-data-insight .insight-icon {
+            flex-shrink: 0;
+            font-size: 14px;
+            margin-top: 1px;
+        }
+        .ai-data-insight .up {
+            color: #16a34a;
+            font-weight: 600;
+        }
+        .ai-data-insight .num {
+            color: #6366f1;
+            font-weight: 600;
+        }
+
+        /* ========== COURSE TAG ========== */
+        .course-name {
+            font-size: 13px;
+            color: #334155;
+        }
+
+        /* ========== ROW HIGHLIGHT FOR AI RECOMMENDED ========== */
+        .data-table tbody tr.ai-recommended {
+            background: linear-gradient(90deg, rgba(99,102,241,0.02) 0%, transparent 50%);
+        }
+        .data-table tbody tr.ai-recommended:hover {
+            background: linear-gradient(90deg, rgba(99,102,241,0.05) 0%, #f8fafc 50%);
+        }
+        .data-table tbody tr.ai-recommended td:first-child {
+            position: relative;
+        }
+        .data-table tbody tr.ai-recommended td:first-child::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 3px;
+            background: linear-gradient(180deg, #6366f1, #8b5cf6);
+            border-radius: 0 3px 3px 0;
+        }
+
+        /* ========== ROW NUMBER / RANK ========== */
+        .row-rank {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            background: #f1f5f9;
+        }
+        .row-rank.top {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1400px) {
+            .ai-sidebar {
+                width: 260px;
+            }
+        }
+        @media (max-width: 1200px) {
+            .ai-sidebar {
+                display: none;
+            }
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ========== CHECKBOX ========== */
+        .custom-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .custom-checkbox:hover {
+            border-color: #6366f1;
+        }
+        .custom-checkbox.checked {
+            background: #6366f1;
+            border-color: #6366f1;
+        }
+        .custom-checkbox.checked::after {
+            content: '';
+            width: 8px;
+            height: 5px;
+            border-left: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            transform: rotate(-45deg) translateY(-1px);
+        }
+
+        /* ========== MISC ========== */
+        .text-muted { color: #94a3b8; }
+        .text-sm { font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">沪</div>
+                <div class="logo-text">
+                    <span class="name">沪江网校</span>
+                    <span class="sub">AI智能CRM</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">主菜单</div>
+
+                <div class="nav-item">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    </span>
+                    <span>首页</span>
+                </div>
+
+                <div class="nav-item active">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </span>
+                    <span>我的客户</span>
+                    <span class="nav-badge">186</span>
+                </div>
+
+                <div class="nav-item">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </span>
+                    <span>公海客户</span>
+                </div>
+
+                <div class="nav-item">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 3 3v1a2 2 0 0 1-2 2h-1l-2 7H10l-2-7H7a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3V6a4 4 0 0 1 4-4z"></path></svg>
+                    </span>
+                    <span>AI助理</span>
+                    <span class="nav-badge" style="background:#6366f1;">New</span>
+                </div>
+
+                <div class="nav-section-label">工作台</div>
+
+                <div class="nav-item">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    </span>
+                    <span>通话记录</span>
+                </div>
+
+                <div class="nav-item">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                    </span>
+                    <span>业绩看板</span>
+                </div>
+
+                <div class="nav-item">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    </span>
+                    <span>消息中心</span>
+                    <span class="nav-badge">5</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="version">v2.4.1 · AI Engine Active</div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN AREA ===== -->
+        <div class="main-area">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <a href="index.html" class="back-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        返回演示中心
+                    </a>
+                    <div class="breadcrumb">
+                        <span>CRM系统</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <span class="current">我的客户</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="today-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        今日待跟进:
+                        <span class="count">23</span>
+                    </div>
+                    <div class="notification-bell">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span class="dot"></span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">李</div>
+                        <div class="user-info">
+                            <div class="name">李思琪</div>
+                            <div class="role">销售顾问</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <!-- Main Content -->
+                <div class="content-main">
+                    <!-- Page Title -->
+                    <div class="page-title-bar">
+                        <h1>
+                            <span class="icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </span>
+                            智能客户列表
+                        </h1>
+                        <div class="actions">
+                            <button class="btn-outline">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                导出数据
+                            </button>
+                            <button class="btn-primary">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                新增客户
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Bar -->
+                    <div class="tab-bar">
+                        <div class="tab-item">
+                            全部客户 <span class="tab-count">(186)</span>
+                        </div>
+                        <div class="tab-item">
+                            今日待跟进 <span class="tab-count">(23)</span>
+                        </div>
+                        <div class="tab-item">
+                            高意向 <span class="tab-count">(34)</span>
+                        </div>
+                        <div class="tab-item active">
+                            <span class="ai-spark">&#10024;</span>
+                            AI推荐 <span class="tab-count">(12)</span>
+                        </div>
+                        <div class="tab-item">
+                            即将过期 <span class="tab-count">(8)</span>
+                        </div>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="filter-bar">
+                        <div class="search-box">
+                            <span class="search-icon">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </span>
+                            <input type="text" placeholder="搜索客户姓名/手机号">
+                        </div>
+                        <select class="filter-select">
+                            <option>意向语种</option>
+                            <option>日语</option>
+                            <option>英语</option>
+                            <option>韩语</option>
+                            <option>法语</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>意向等级</option>
+                            <option>S级</option>
+                            <option>A级</option>
+                            <option>B级</option>
+                            <option>C级</option>
+                            <option>D级</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>来源渠道</option>
+                            <option>官网注册</option>
+                            <option>APP下载</option>
+                            <option>抖音广告</option>
+                            <option>朋友推荐</option>
+                            <option>线下活动</option>
+                        </select>
+                        <div class="sort-btn ai-sort">
+                            <span class="spark">&#10024;</span>
+                            AI推荐排序
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+
+                    <!-- AI Recommendation Banner -->
+                    <div class="ai-banner">
+                        <div class="ai-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 3 3v1a2 2 0 0 1-2 2h-1l-2 7H10l-2-7H7a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3V6a4 4 0 0 1 4-4z"></path></svg>
+                        </div>
+                        <div class="ai-content">
+                            <div class="ai-title">
+                                AI推荐
+                                <span class="badge">Smart Rank</span>
+                            </div>
+                            <div class="ai-desc">
+                                以下 <span class="highlight">12位客户</span> 基于行为数据分析，转化概率最高，建议优先跟进。分析维度包括：<span class="highlight">浏览行为</span>、<span class="highlight">试听完成情况</span>、<span class="highlight">练习完成率</span>、<span class="highlight">访问频次</span>等多项指标综合评估。
+                            </div>
+                        </div>
+                        <div class="ai-close" title="关闭">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </div>
+                    </div>
+
+                    <!-- Customer Table -->
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:44px; padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </th>
+                                    <th style="width:36px;">#</th>
+                                    <th>客户姓名</th>
+                                    <th>手机号</th>
+                                    <th>意向语种</th>
+                                    <th>意向等级</th>
+                                    <th>课程意向</th>
+                                    <th>最近活跃</th>
+                                    <th>跟进阶段</th>
+                                    <th class="ai-col">AI洞察</th>
+                                    <th style="width:150px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Row 1 -->
+                                <tr class="ai-recommended">
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank top">1</span></td>
+                                    <td><span class="customer-name">王思雨</span></td>
+                                    <td><span class="phone-masked">138****7621</span></td>
+                                    <td><span class="lang-tag jp">&#127471;&#127477; 日语</span></td>
+                                    <td><span class="level-badge level-s">S级</span></td>
+                                    <td><span class="course-name">N2全程班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot online"></span>
+                                            2小时前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag hot">试听已完成</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">连续3天做题，意向度&#8593;</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 2 -->
+                                <tr class="ai-recommended">
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank top">2</span></td>
+                                    <td><span class="customer-name">李雪</span></td>
+                                    <td><span class="phone-masked">177****9012</span></td>
+                                    <td><span class="lang-tag jp">&#127471;&#127477; 日语</span></td>
+                                    <td><span class="level-badge level-s">S级</span></td>
+                                    <td><span class="course-name">N1签约班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot online"></span>
+                                            30分钟前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag hot">意向确认</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">今日二次访问APP</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 3 -->
+                                <tr class="ai-recommended">
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank top">3</span></td>
+                                    <td><span class="customer-name">杨洋</span></td>
+                                    <td><span class="phone-masked">183****7789</span></td>
+                                    <td><span class="lang-tag jp">&#127471;&#127477; 日语</span></td>
+                                    <td><span class="level-badge level-s">S级</span></td>
+                                    <td><span class="course-name">N2直达班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot online"></span>
+                                            20分钟前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag warm">异议处理</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">价格犹豫，可推分期</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 4 -->
+                                <tr class="ai-recommended">
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank">4</span></td>
+                                    <td><span class="customer-name">小林美咲</span></td>
+                                    <td><span class="phone-masked">131****4456</span></td>
+                                    <td><span class="lang-tag jp">&#127471;&#127477; 日语</span></td>
+                                    <td><span class="level-badge level-s">S级</span></td>
+                                    <td><span class="course-name">商务日语班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot online"></span>
+                                            1小时前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag warm">方案制定</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">有留学计划，紧迫感强</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 5 -->
+                                <tr class="ai-recommended">
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank">5</span></td>
+                                    <td><span class="customer-name">张明辉</span></td>
+                                    <td><span class="phone-masked">159****3348</span></td>
+                                    <td><span class="lang-tag en">&#127468;&#127463; 英语</span></td>
+                                    <td><span class="level-badge level-a">A级</span></td>
+                                    <td><span class="course-name">四级冲刺班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot recent"></span>
+                                            5小时前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag warm">报价阶段</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">对比过3家，价格敏感</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 6 -->
+                                <tr class="ai-recommended">
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank">6</span></td>
+                                    <td><span class="customer-name">马俊豪</span></td>
+                                    <td><span class="phone-masked">176****6678</span></td>
+                                    <td><span class="lang-tag en">&#127468;&#127463; 英语</span></td>
+                                    <td><span class="level-badge level-a">A级</span></td>
+                                    <td><span class="course-name">商务英语班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot recent"></span>
+                                            4小时前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag warm">报价阶段</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">公司报销，决策周期短</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 7 -->
+                                <tr class="ai-recommended">
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank">7</span></td>
+                                    <td><span class="customer-name">陈浩然</span></td>
+                                    <td><span class="phone-masked">186****5567</span></td>
+                                    <td><span class="lang-tag kr">&#127472;&#127479; 韩语</span></td>
+                                    <td><span class="level-badge level-a">A级</span></td>
+                                    <td><span class="course-name">TOPIK II班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot recent"></span>
+                                            1天前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag">首次沟通</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">领取了免费课</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 8 -->
+                                <tr class="ai-recommended">
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank">8</span></td>
+                                    <td><span class="customer-name">刘建国</span></td>
+                                    <td><span class="phone-masked">152****8890</span></td>
+                                    <td><span class="lang-tag jp">&#127471;&#127477; 日语</span></td>
+                                    <td><span class="level-badge level-a">A级</span></td>
+                                    <td><span class="course-name">N3入门班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot recent"></span>
+                                            6小时前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag">试听安排</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">工作忙碎片学习需求</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 9 -->
+                                <tr>
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank">9</span></td>
+                                    <td><span class="customer-name">赵雅琴</span></td>
+                                    <td><span class="phone-masked">135****2234</span></td>
+                                    <td><span class="lang-tag en">&#127468;&#127463; 英语</span></td>
+                                    <td><span class="level-badge level-b">B级</span></td>
+                                    <td><span class="course-name">六级全程班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot recent"></span>
+                                            3小时前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag">需求分析</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">活跃度一般</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 10 -->
+                                <tr>
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank">10</span></td>
+                                    <td><span class="customer-name">周晓雯</span></td>
+                                    <td><span class="phone-masked">189****1123</span></td>
+                                    <td><span class="lang-tag fr">&#127467;&#127479; 法语</span></td>
+                                    <td><span class="level-badge level-b">B级</span></td>
+                                    <td><span class="course-name">法语B1班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot away"></span>
+                                            2天前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag">首次沟通</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">兴趣学习，无紧迫性</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 11 -->
+                                <tr>
+                                    <td style="padding-left:16px;">
+                                        <div class="custom-checkbox"></div>
+                                    </td>
+                                    <td><span class="row-rank">11</span></td>
+                                    <td><span class="customer-name">田中花子</span></td>
+                                    <td><span class="phone-masked">150****3345</span></td>
+                                    <td><span class="lang-tag kr">&#127472;&#127479; 韩语</span></td>
+                                    <td><span class="level-badge level-c">C级</span></td>
+                                    <td><span class="course-name">TOPIK I班</span></td>
+                                    <td>
+                                        <span class="active-time">
+                                            <span class="dot away"></span>
+                                            5天前
+                                        </span>
+                                    </td>
+                                    <td><span class="stage-tag">待激活</span></td>
+                                    <td class="ai-insight-cell">
+                                        <div class="ai-insight">
+                                            <span class="insight-icon">&#10024;</span>
+                                            <span class="insight-text">上次未接通</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="btn-call">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                拨打
+                                            </button>
+                                            <a href="page3-customer-detail.html" class="btn-detail">
+                                                详情
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination -->
+                        <div class="pagination-bar">
+                            <div class="pagination-info">
+                                共 <strong style="color:#334155;">186</strong> 条记录 &middot; 第 <strong style="color:#334155;">1</strong> 页 / 共 <strong style="color:#334155;">16</strong> 页
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="page-btn disabled">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                </button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn">4</button>
+                                <button class="page-btn" style="letter-spacing:2px;">...</button>
+                                <button class="page-btn">16</button>
+                                <button class="page-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== AI SIDEBAR ===== -->
+                <aside class="ai-sidebar">
+                    <div class="ai-sidebar-header">
+                        <div class="title">
+                            <span class="icon">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 3 3v1a2 2 0 0 1-2 2h-1l-2 7H10l-2-7H7a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3V6a4 4 0 0 1 4-4z"></path></svg>
+                            </span>
+                            AI智能看板
+                        </div>
+                        <div class="collapse-btn" title="收起">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+                    </div>
+
+                    <div class="ai-sidebar-body">
+                        <!-- Follow-up Suggestions -->
+                        <div class="ai-section">
+                            <div class="ai-section-title">
+                                <span class="dot"></span>
+                                今日跟进建议
+                            </div>
+
+                            <div class="ai-suggestion-card">
+                                <div class="card-header">
+                                    <span class="card-name">王思雨</span>
+                                    <span class="card-tag urgent">紧急</span>
+                                </div>
+                                <div class="card-desc">
+                                    已完成试听且做题活跃，建议<strong>今天下午趁热打铁</strong>，沟通报名方案。N2全程班转化窗口期预计剩余 <strong>2天</strong>。
+                                </div>
+                            </div>
+
+                            <div class="ai-suggestion-card">
+                                <div class="card-header">
+                                    <span class="card-name">张明辉</span>
+                                    <span class="card-tag recommend">策略</span>
+                                </div>
+                                <div class="card-desc">
+                                    价格敏感型客户，已对比过3家机构。建议使用<strong>优惠方案B</strong>（限时折扣+赠课），强调性价比优势。
+                                </div>
+                            </div>
+
+                            <div class="ai-suggestion-card">
+                                <div class="card-header">
+                                    <span class="card-name">杨洋</span>
+                                    <span class="card-tag recommend">策略</span>
+                                </div>
+                                <div class="card-desc">
+                                    犹豫价格中，建议推荐<strong>3期免息分期</strong>方案，降低支付压力。该客户对课程内容已高度认可。
+                                </div>
+                            </div>
+
+                            <div class="ai-suggestion-card">
+                                <div class="card-header">
+                                    <span class="card-name">马俊豪</span>
+                                    <span class="card-tag urgent">紧急</span>
+                                </div>
+                                <div class="card-desc">
+                                    公司报销学费，决策周期短。建议<strong>今日沟通确认</strong>，提供企业发票等支持材料说明。
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Insights -->
+                        <div class="ai-section">
+                            <div class="ai-section-title">
+                                <span class="dot" style="background:#10b981;"></span>
+                                数据洞察
+                            </div>
+
+                            <div class="ai-data-insight">
+                                <div class="insight-row">
+                                    <span class="insight-icon">&#128200;</span>
+                                    <span>今日<strong>日语</strong>意向客户活跃度较昨日 <span class="up">&#8593;15%</span>，建议加强日语课程相关跟进。</span>
+                                </div>
+                            </div>
+
+                            <div class="ai-data-insight">
+                                <div class="insight-row">
+                                    <span class="insight-icon">&#128202;</span>
+                                    <span>本周<strong>英语CET4</strong>课程客户新增 <span class="num">23位</span>，当前产能利用率82%，注意合理分配跟进资源。</span>
+                                </div>
+                            </div>
+
+                            <div class="ai-data-insight">
+                                <div class="insight-row">
+                                    <span class="insight-icon">&#9201;</span>
+                                    <span>S级客户<strong>平均响应时间</strong>建议控制在 <span class="num">2小时内</span>，当前您的平均响应为1.8小时，表现优秀。</span>
+                                </div>
+                            </div>
+
+                            <div class="ai-data-insight">
+                                <div class="insight-row">
+                                    <span class="insight-icon">&#127919;</span>
+                                    <span>本月目标完成 <span class="num">68%</span>，剩余12个工作日，建议每日转化 <span class="num">2-3单</span> 以达标。</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

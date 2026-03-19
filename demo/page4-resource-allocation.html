@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI资源分配中心 - 沪江网校运营中心</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --sidebar-dark: #1e1e2e;
+  --sidebar-mid: #2d2d44;
+  --sidebar-hover: #383854;
+  --sidebar-active: #10b981;
+  --accent: #10b981;
+  --accent-light: #d1fae5;
+  --accent-dark: #059669;
+  --secondary: #6366f1;
+  --secondary-light: #e0e1ff;
+  --bg-main: #f5f7fa;
+  --bg-white: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border: #e2e8f0;
+  --grade-s: #ef4444;
+  --grade-a: #f97316;
+  --grade-b: #3b82f6;
+  --grade-c: #94a3b8;
+  --grade-d: #cbd5e1;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+}
+
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ===== LAYOUT ===== */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--sidebar-dark) 0%, var(--sidebar-mid) 100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-brand .brand-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  gap: 12px;
+}
+
+.nav-item:hover {
+  color: rgba(255,255,255,0.9);
+  background: var(--sidebar-hover);
+}
+
+.nav-item.active {
+  color: #ffffff;
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+
+/* ===== MAIN AREA ===== */
+.main-area {
+  flex: 1;
+  margin-left: 220px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.breadcrumb span {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.breadcrumb-sep {
+  color: var(--text-muted);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-time {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.header-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.user-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.user-meta strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ===== CONTENT ===== */
+.content {
+  padding: 24px 32px;
+  flex: 1;
+}
+
+.page-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.page-title-bar .status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.status-indicator .dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+
+/* ===== STAT CARDS ===== */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg-white);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.stat-card:nth-child(1)::after { background: var(--grade-s); }
+.stat-card:nth-child(2)::after { background: var(--accent); }
+.stat-card:nth-child(3)::after { background: var(--secondary); }
+.stat-card:nth-child(4)::after { background: var(--grade-a); }
+
+.stat-card .stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+
+.stat-card:nth-child(1) .stat-icon { background: #fef2f2; }
+.stat-card:nth-child(2) .stat-icon { background: #d1fae5; }
+.stat-card:nth-child(3) .stat-icon { background: #e0e1ff; }
+.stat-card:nth-child(4) .stat-icon { background: #fff7ed; }
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.stat-card:nth-child(1) .stat-value { color: var(--grade-s); }
+.stat-card:nth-child(3) .stat-value { color: var(--secondary); }
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-sub .up { color: var(--accent); }
+.stat-sub .down { color: var(--grade-s); }
+
+/* ===== MAIN PANELS ===== */
+.panels-row {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.panel {
+  background: var(--bg-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title .icon {
+  font-size: 18px;
+}
+
+.panel-badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.panel-badge.green {
+  background: var(--accent-light);
+  color: var(--accent-dark);
+}
+
+.panel-badge.purple {
+  background: var(--secondary-light);
+  color: var(--secondary);
+}
+
+.panel-body {
+  padding: 24px;
+}
+
+/* ===== FUNNEL / PIPELINE ===== */
+.funnel-section {
+  position: relative;
+}
+
+.funnel-stage {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 0;
+}
+
+.funnel-stage::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--secondary), var(--accent));
+}
+
+.funnel-node {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.funnel-node:last-child {
+  margin-bottom: 0;
+}
+
+.funnel-node-dot {
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  z-index: 2;
+}
+
+.funnel-source {
+  background: linear-gradient(135deg, var(--secondary), #818cf8);
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  color: white;
+}
+
+.funnel-source .funnel-source-label {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.funnel-source .funnel-source-value {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.funnel-process {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+}
+
+.funnel-process-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.funnel-process-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.funnel-process-item {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: white;
+  border-radius: var(--radius-xs);
+  border: 1px solid #f1f5f9;
+}
+
+.funnel-process-item .tag {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tag-blue { background: #eff6ff; color: #3b82f6; }
+.tag-green { background: #f0fdf4; color: #22c55e; }
+.tag-purple { background: #f5f3ff; color: #8b5cf6; }
+.tag-orange { background: #fff7ed; color: #f97316; }
+
+/* ===== GRADE BARS ===== */
+.grade-result {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+}
+
+.grade-result-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.grade-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.grade-bar-row:last-child {
+  margin-bottom: 0;
+}
+
+.grade-badge {
+  width: 36px;
+  height: 24px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.grade-badge.s { background: var(--grade-s); }
+.grade-badge.a { background: var(--grade-a); }
+.grade-badge.b { background: var(--grade-b); }
+.grade-badge.c { background: var(--grade-c); }
+.grade-badge.d { background: var(--grade-d); color: #64748b; }
+
+.grade-info {
+  font-size: 12px;
+  color: var(--text-secondary);
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.grade-info strong {
+  color: var(--text-primary);
+}
+
+.grade-bar-track {
+  flex: 1;
+  height: 20px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.grade-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  position: relative;
+  width: 0;
+  transition: width 1.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.grade-bar-fill.s { background: linear-gradient(90deg, var(--grade-s), #f87171); }
+.grade-bar-fill.a { background: linear-gradient(90deg, var(--grade-a), #fb923c); }
+.grade-bar-fill.b { background: linear-gradient(90deg, var(--grade-b), #60a5fa); }
+.grade-bar-fill.c { background: linear-gradient(90deg, var(--grade-c), #a1a1aa); }
+.grade-bar-fill.d { background: linear-gradient(90deg, var(--grade-d), #d4d4d8); }
+
+.grade-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+  animation: bar-shimmer 2s infinite;
+}
+
+.grade-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+@keyframes bar-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ===== RIGHT PANEL - ALLOCATION CONSOLE ===== */
+.alloc-mode {
+  margin-bottom: 20px;
+}
+
+.alloc-mode-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 0;
+  background: #f1f5f9;
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-tab.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.alloc-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-xs);
+  padding: 10px 14px;
+  margin-top: 10px;
+  line-height: 1.7;
+}
+
+.alloc-desc::before {
+  content: "AI";
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* ===== TEAM TABLE ===== */
+.team-section {
+  margin-bottom: 20px;
+}
+
+.team-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.team-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.team-table th {
+  background: #f8fafc;
+  padding: 9px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.team-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.team-table tr:hover td {
+  background: #fafbfc;
+}
+
+.team-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.team-lang {
+  font-size: 11px;
+  color: var(--secondary);
+  background: var(--secondary-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.stars {
+  color: #fbbf24;
+  font-size: 12px;
+  letter-spacing: -1px;
+}
+
+.stars-empty {
+  color: #e2e8f0;
+  font-size: 12px;
+  letter-spacing: -1px;
+}
+
+.load-bar-wrap {
+  width: 56px;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.load-bar-inner {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+.load-bar-inner.low { background: var(--accent); }
+.load-bar-inner.mid { background: var(--grade-a); }
+.load-bar-inner.high { background: var(--grade-s); }
+
+.match-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.match-tag.best { background: #d1fae5; color: #059669; }
+.match-tag.high { background: #dbeafe; color: #2563eb; }
+.match-tag.mid { background: #fef3c7; color: #d97706; }
+
+/* ===== LIVE FEED ===== */
+.live-feed-section {
+  margin-bottom: 20px;
+}
+
+.live-feed-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-feed-title .live-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--grade-s);
+  border-radius: 50%;
+  animation: pulse-dot 1.5s infinite;
+}
+
+.live-feed {
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.live-feed::-webkit-scrollbar {
+  width: 4px;
+}
+
+.live-feed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.live-feed::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.feed-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  line-height: 1.6;
+  border-left: 3px solid transparent;
+  opacity: 0;
+  transform: translateX(-8px);
+  animation: feed-in 0.5s ease forwards;
+}
+
+.feed-item:nth-child(1) { animation-delay: 0.3s; }
+.feed-item:nth-child(2) { animation-delay: 0.6s; }
+.feed-item:nth-child(3) { animation-delay: 0.9s; }
+.feed-item:nth-child(4) { animation-delay: 1.2s; }
+.feed-item:nth-child(5) { animation-delay: 1.5s; }
+.feed-item:nth-child(6) { animation-delay: 1.8s; }
+
+.feed-item:nth-child(odd) {
+  background: #fafbfc;
+}
+
+.feed-item.green {
+  border-left-color: var(--accent);
+}
+
+.feed-item.yellow {
+  border-left-color: #eab308;
+}
+
+.feed-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.feed-dot.green { background: var(--accent); }
+.feed-dot.yellow { background: #eab308; }
+
+.feed-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.feed-time {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+  font-family: "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  font-size: 11px;
+}
+
+.feed-grade {
+  font-weight: 700;
+  margin-right: 2px;
+}
+
+.feed-grade.s { color: var(--grade-s); }
+.feed-grade.a { color: var(--grade-a); }
+.feed-grade.b { color: var(--grade-b); }
+
+.feed-match {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.feed-reason {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: 1px;
+}
+
+@keyframes feed-in {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-area {
+  text-align: center;
+  padding: 4px 0 0;
+}
+
+.btn-ai-alloc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--accent), #059669);
+  color: #fff;
+  border: none;
+  padding: 14px 36px;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: btn-pulse 2.5s infinite;
+  font-family: inherit;
+}
+
+.btn-ai-alloc:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
+}
+
+.btn-ai-alloc::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+  animation: btn-glow 3s linear infinite;
+}
+
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35); }
+  50% { box-shadow: 0 4px 24px rgba(16, 185, 129, 0.55), 0 0 40px rgba(16, 185, 129, 0.15); }
+}
+
+@keyframes btn-glow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.action-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.action-desc strong {
+  color: var(--accent);
+}
+
+.btn-report {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--secondary);
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.btn-report:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* ===== COMPARISON SECTION ===== */
+.comparison-panel {
+  background: var(--bg-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.comparison-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comparison-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comparison-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.legend-item.new-legend {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.legend-dot.old { background: #d1d5db; }
+.legend-dot.new { background: var(--accent); }
+
+.comparison-body {
+  padding: 28px 24px 32px;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.comparison-item {
+  text-align: center;
+}
+
+.comparison-item-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+}
+
+.comparison-bars {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 16px;
+  height: 160px;
+  margin-bottom: 14px;
+  padding-bottom: 4px;
+}
+
+.comp-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 52px;
+}
+
+.comp-bar {
+  width: 52px;
+  border-radius: 8px 8px 4px 4px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  position: relative;
+  height: 0;
+  transition: height 1.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  min-height: 0;
+}
+
+.comp-bar.old {
+  background: linear-gradient(180deg, #c7c7d1, #e2e2ea);
+}
+
+.comp-bar.new {
+  background: linear-gradient(180deg, var(--accent), #34d399);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.comp-bar-value {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  white-space: nowrap;
+}
+
+.comp-bar.old .comp-bar-value {
+  color: #555;
+}
+
+.comp-bar-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.comp-bar-label.new-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.comparison-improvement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.improvement-arrow {
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.improvement-arrow.down {
+  color: var(--accent);
+}
+
+.improvement-arrow.up {
+  color: var(--accent);
+}
+
+.improvement-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.delay-1 { animation-delay: 0.1s; opacity: 0; }
+.delay-2 { animation-delay: 0.2s; opacity: 0; }
+.delay-3 { animation-delay: 0.3s; opacity: 0; }
+.delay-4 { animation-delay: 0.4s; opacity: 0; }
+.delay-5 { animation-delay: 0.5s; opacity: 0; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1400px) {
+  .panels-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 1100px) {
+  .panels-row {
+    grid-template-columns: 1fr;
+  }
+  .comparison-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .stat-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>沪江网校</h1>
+      <div class="brand-sub">HUJIANG ONLINE</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="#">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </span>
+        <span>首页</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </span>
+        <span>资源管理</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </span>
+        <span>AI外呼中心</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </span>
+        <span>客户管理</span>
+      </a>
+      <a class="nav-item active" href="#">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        </span>
+        <span>资源分配</span>
+        <span class="nav-badge">342</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </span>
+        <span>数据报表</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </span>
+        <span>系统设置</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回演示中心
+      </a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main-area">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="breadcrumb">
+        运营中心 <span class="breadcrumb-sep">/</span> <span>资源分配中心</span>
+      </div>
+      <div class="header-right">
+        <span class="header-time" id="headerTime"></span>
+        <span class="header-dot"></span>
+        <div class="user-info">
+          <div class="user-avatar">张</div>
+          <div class="user-meta"><strong>运营主管</strong> &middot; 张经理</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <!-- PAGE TITLE -->
+      <div class="page-title-bar animate-in">
+        <h2 class="page-title">AI资源分配中心</h2>
+        <div class="status-indicator">
+          <span class="dot"></span>
+          AI分配引擎运行中
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="stat-cards">
+        <div class="stat-card animate-in delay-1">
+          <div class="stat-icon">&#128203;</div>
+          <div class="stat-label">待分配资源</div>
+          <div class="stat-value">342</div>
+          <div class="stat-sub"><span class="up">&#9650;</span> 较昨日增加 12%</div>
+        </div>
+        <div class="stat-card animate-in delay-2">
+          <div class="stat-icon">&#9989;</div>
+          <div class="stat-label">今日已分配</div>
+          <div class="stat-value">128</div>
+          <div class="stat-sub"><span class="up">&#9650;</span> 完成率 37.4%</div>
+        </div>
+        <div class="stat-card animate-in delay-3">
+          <div class="stat-icon">&#129302;</div>
+          <div class="stat-label">AI分配准确率</div>
+          <div class="stat-value">94.6%</div>
+          <div class="stat-sub"><span class="up">&#9650;</span> 较上月提升 3.2%</div>
+        </div>
+        <div class="stat-card animate-in delay-4">
+          <div class="stat-icon">&#128101;</div>
+          <div class="stat-label">销售团队在线</div>
+          <div class="stat-value">18<span style="font-size:18px;color:var(--text-muted);font-weight:400">/24</span></div>
+          <div class="stat-sub">当前在线比例 75%</div>
+        </div>
+      </div>
+
+      <!-- MAIN PANELS ROW -->
+      <div class="panels-row">
+
+        <!-- LEFT: GRADING ENGINE -->
+        <div class="panel animate-in delay-3">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="icon">&#9881;</span>
+              AI资源分级引擎
+            </div>
+            <span class="panel-badge purple">实时运算中</span>
+          </div>
+          <div class="panel-body">
+            <div class="funnel-section">
+              <div class="funnel-stage">
+                <!-- SOURCE -->
+                <div class="funnel-node">
+                  <div class="funnel-node-dot" style="background:var(--secondary);color:#fff;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><circle cx="12" cy="12" r="8"/></svg>
+                  </div>
+                  <div class="funnel-source">
+                    <div class="funnel-source-label">原始资源池</div>
+                    <div class="funnel-source-value">2,456 <span style="font-size:14px;opacity:0.8">条</span></div>
+                  </div>
+                </div>
+
+                <!-- STEP 1 -->
+                <div class="funnel-node">
+                  <div class="funnel-node-dot" style="background:#3b82f6;color:#fff;">
+                    <span style="font-size:11px;font-weight:800;">1</span>
+                  </div>
+                  <div class="funnel-process">
+                    <div class="funnel-process-title">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M9 12l2 2 4-4"/></svg>
+                      自有数据分析
+                    </div>
+                    <div class="funnel-process-items">
+                      <div class="funnel-process-item">
+                        <span class="tag tag-blue">APP行为</span>
+                        访问频率、页面停留时长、课程浏览深度
+                      </div>
+                      <div class="funnel-process-item">
+                        <span class="tag tag-green">试听参与</span>
+                        是否领取试听、是否完成试听、课后评价
+                      </div>
+                      <div class="funnel-process-item">
+                        <span class="tag tag-purple">互动数据</span>
+                        做题活跃度、社群发言频率、直播互动
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="funnel-node">
+                  <div class="funnel-node-dot" style="background:#8b5cf6;color:#fff;">
+                    <span style="font-size:11px;font-weight:800;">2</span>
+                  </div>
+                  <div class="funnel-process">
+                    <div class="funnel-process-title">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M9 12l2 2 4-4"/></svg>
+                      大数据标签融合
+                    </div>
+                    <div class="funnel-process-items">
+                      <div class="funnel-process-item">
+                        <span class="tag tag-orange">消费能力</span>
+                        高消费 / 中等消费 / 低消费
+                      </div>
+                      <div class="funnel-process-item">
+                        <span class="tag tag-green">学习意向</span>
+                        强烈 / 一般 / 较弱
+                      </div>
+                      <div class="funnel-process-item">
+                        <span class="tag tag-blue">职业标签</span>
+                        在职人士 / 在校学生 / 自由职业
+                      </div>
+                      <div class="funnel-process-item">
+                        <span class="tag tag-purple">地域标签</span>
+                        一线城市 / 二线城市 / 三线及以下
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 3: GRADE RESULTS -->
+                <div class="funnel-node">
+                  <div class="funnel-node-dot" style="background:var(--accent);color:#fff;">
+                    <span style="font-size:11px;font-weight:800;">3</span>
+                  </div>
+                  <div class="grade-result">
+                    <div class="grade-result-title">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                      AI动态评分结果
+                    </div>
+
+                    <div class="grade-bar-row">
+                      <span class="grade-badge s">S</span>
+                      <span class="grade-info"><strong>186</strong>条 (7.6%)</span>
+                      <div class="grade-bar-track">
+                        <div class="grade-bar-fill s" data-width="20.8%"></div>
+                      </div>
+                      <span class="grade-pct">7.6%</span>
+                    </div>
+                    <div class="grade-bar-row">
+                      <span class="grade-badge a">A</span>
+                      <span class="grade-info"><strong>423</strong>条 (17.2%)</span>
+                      <div class="grade-bar-track">
+                        <div class="grade-bar-fill a" data-width="47.4%"></div>
+                      </div>
+                      <span class="grade-pct">17.2%</span>
+                    </div>
+                    <div class="grade-bar-row">
+                      <span class="grade-badge b">B</span>
+                      <span class="grade-info"><strong>892</strong>条 (36.3%)</span>
+                      <div class="grade-bar-track">
+                        <div class="grade-bar-fill b" data-width="100%"></div>
+                      </div>
+                      <span class="grade-pct">36.3%</span>
+                    </div>
+                    <div class="grade-bar-row">
+                      <span class="grade-badge c">C</span>
+                      <span class="grade-info"><strong>647</strong>条 (26.3%)</span>
+                      <div class="grade-bar-track">
+                        <div class="grade-bar-fill c" data-width="72.5%"></div>
+                      </div>
+                      <span class="grade-pct">26.3%</span>
+                    </div>
+                    <div class="grade-bar-row">
+                      <span class="grade-badge d">D</span>
+                      <span class="grade-info"><strong>308</strong>条 (12.5%)</span>
+                      <div class="grade-bar-track">
+                        <div class="grade-bar-fill d" data-width="34.5%"></div>
+                      </div>
+                      <span class="grade-pct">12.5%</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: ALLOCATION CONSOLE -->
+        <div class="panel animate-in delay-4">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="icon">&#127919;</span>
+              AI智能分配控制台
+            </div>
+            <span class="panel-badge green">运行中</span>
+          </div>
+          <div class="panel-body" style="padding: 20px;">
+
+            <!-- ALLOCATION MODE -->
+            <div class="alloc-mode">
+              <div class="alloc-mode-label">分配策略设置</div>
+              <div class="mode-tabs">
+                <div class="mode-tab active">AI智能分配</div>
+                <div class="mode-tab">手动分配</div>
+                <div class="mode-tab">轮询分配</div>
+              </div>
+              <div class="alloc-desc">
+                基于销售能力画像、历史成交数据、当前产能负载，实时计算最优匹配方案
+              </div>
+            </div>
+
+            <!-- TEAM TABLE -->
+            <div class="team-section">
+              <div class="team-section-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                销售团队能力矩阵
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="team-table">
+                  <thead>
+                    <tr>
+                      <th>销售姓名</th>
+                      <th>擅长语种</th>
+                      <th>能力等级</th>
+                      <th>当前负载</th>
+                      <th>今日</th>
+                      <th>AI匹配度</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="team-name">李思琪</td>
+                      <td><span class="team-lang">日语</span></td>
+                      <td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+                      <td>
+                        <div class="load-bar-wrap"><div class="load-bar-inner mid" data-load="78"></div></div>
+                        <span style="font-size:11px;color:var(--text-secondary)">78%</span>
+                      </td>
+                      <td style="font-size:12px;">2单</td>
+                      <td><span class="match-tag best">最优</span></td>
+                    </tr>
+                    <tr>
+                      <td class="team-name">王大伟</td>
+                      <td><span class="team-lang">英语</span></td>
+                      <td><span class="stars">&#9733;&#9733;&#9733;&#9733;</span><span class="stars-empty">&#9733;</span></td>
+                      <td>
+                        <div class="load-bar-wrap"><div class="load-bar-inner low" data-load="65"></div></div>
+                        <span style="font-size:11px;color:var(--text-secondary)">65%</span>
+                      </td>
+                      <td style="font-size:12px;">1单</td>
+                      <td><span class="match-tag high">高</span></td>
+                    </tr>
+                    <tr>
+                      <td class="team-name">赵小雨</td>
+                      <td><span class="team-lang">日语/韩语</span></td>
+                      <td><span class="stars">&#9733;&#9733;&#9733;&#9733;</span><span class="stars-empty">&#9733;</span></td>
+                      <td>
+                        <div class="load-bar-wrap"><div class="load-bar-inner high" data-load="82"></div></div>
+                        <span style="font-size:11px;color:var(--text-secondary)">82%</span>
+                      </td>
+                      <td style="font-size:12px;">3单</td>
+                      <td><span class="match-tag mid">中(负载高)</span></td>
+                    </tr>
+                    <tr>
+                      <td class="team-name">刘芳</td>
+                      <td><span class="team-lang">英语/法语</span></td>
+                      <td><span class="stars">&#9733;&#9733;&#9733;</span><span class="stars-empty">&#9733;&#9733;</span></td>
+                      <td>
+                        <div class="load-bar-wrap"><div class="load-bar-inner low" data-load="45"></div></div>
+                        <span style="font-size:11px;color:var(--text-secondary)">45%</span>
+                      </td>
+                      <td style="font-size:12px;">0单</td>
+                      <td><span class="match-tag high">高</span></td>
+                    </tr>
+                    <tr>
+                      <td class="team-name">陈明</td>
+                      <td><span class="team-lang">韩语</span></td>
+                      <td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+                      <td>
+                        <div class="load-bar-wrap"><div class="load-bar-inner mid" data-load="70"></div></div>
+                        <span style="font-size:11px;color:var(--text-secondary)">70%</span>
+                      </td>
+                      <td style="font-size:12px;">2单</td>
+                      <td><span class="match-tag best">最优</span></td>
+                    </tr>
+                    <tr>
+                      <td class="team-name">张婷</td>
+                      <td><span class="team-lang">日语</span></td>
+                      <td><span class="stars">&#9733;&#9733;&#9733;</span><span class="stars-empty">&#9733;&#9733;</span></td>
+                      <td>
+                        <div class="load-bar-wrap"><div class="load-bar-inner low" data-load="55"></div></div>
+                        <span style="font-size:11px;color:var(--text-secondary)">55%</span>
+                      </td>
+                      <td style="font-size:12px;">1单</td>
+                      <td><span class="match-tag mid">中</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- LIVE FEED -->
+            <div class="live-feed-section">
+              <div class="live-feed-title">
+                <span class="live-dot"></span>
+                实时分配动态
+              </div>
+              <div class="live-feed">
+                <div class="feed-item green">
+                  <span class="feed-dot green"></span>
+                  <div class="feed-content">
+                    <span class="feed-time">14:32</span>
+                    <span class="feed-grade s">S级</span> &middot; 王思雨(日语N2) &rarr; <strong>李思琪</strong> &nbsp;|&nbsp; <span class="feed-match">匹配度98%</span>
+                    <span class="feed-reason">原因: 日语Top1 + 产能充足</span>
+                  </div>
+                </div>
+                <div class="feed-item green">
+                  <span class="feed-dot green"></span>
+                  <div class="feed-content">
+                    <span class="feed-time">14:28</span>
+                    <span class="feed-grade a">A级</span> &middot; 张明辉(英语四级) &rarr; <strong>王大伟</strong> &nbsp;|&nbsp; <span class="feed-match">匹配度92%</span>
+                    <span class="feed-reason">原因: 英语专精 + 低负载</span>
+                  </div>
+                </div>
+                <div class="feed-item yellow">
+                  <span class="feed-dot yellow"></span>
+                  <div class="feed-content">
+                    <span class="feed-time">14:25</span>
+                    <span class="feed-grade a">A级</span> &middot; 陈浩然(韩语TOPIK) &rarr; <strong>陈明</strong> &nbsp;|&nbsp; <span class="feed-match">匹配度95%</span>
+                    <span class="feed-reason">原因: 韩语Top1</span>
+                  </div>
+                </div>
+                <div class="feed-item green">
+                  <span class="feed-dot green"></span>
+                  <div class="feed-content">
+                    <span class="feed-time">14:20</span>
+                    <span class="feed-grade b">B级</span> &middot; 赵雅琴(英语六级) &rarr; <strong>刘芳</strong> &nbsp;|&nbsp; <span class="feed-match">匹配度88%</span>
+                    <span class="feed-reason">原因: 英语能力 + 最低负载</span>
+                  </div>
+                </div>
+                <div class="feed-item yellow">
+                  <span class="feed-dot yellow"></span>
+                  <div class="feed-content">
+                    <span class="feed-time">14:15</span>
+                    <span class="feed-grade s">S级</span> &middot; 小林美咲(商务日语) &rarr; <strong>赵小雨</strong> &nbsp;|&nbsp; <span class="feed-match">匹配度85%</span>
+                    <span class="feed-reason">原因: 日语能力强 (注意负载)</span>
+                  </div>
+                </div>
+                <div class="feed-item green">
+                  <span class="feed-dot green"></span>
+                  <div class="feed-content">
+                    <span class="feed-time">14:10</span>
+                    <span class="feed-grade a">A级</span> &middot; 马俊豪(商务英语) &rarr; <strong>王大伟</strong> &nbsp;|&nbsp; <span class="feed-match">匹配度90%</span>
+                    <span class="feed-reason">原因: 商务英语经验丰富</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ACTION AREA -->
+            <div class="action-area">
+              <button class="btn-ai-alloc">&#129302; 启动AI智能分配</button>
+              <div class="action-desc">待分配 <strong>342</strong> 条资源将由AI在 <strong>3分钟</strong> 内完成最优匹配分配</div>
+              <a class="btn-report" href="#">&#128202; 查看分配报告</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== COMPARISON SECTION ===== -->
+      <div class="comparison-panel animate-in delay-5">
+        <div class="comparison-header">
+          <div class="comparison-title">
+            <span>&#128200;</span>
+            分配效果对比
+          </div>
+          <div class="comparison-legend">
+            <span class="legend-item">
+              <span class="legend-dot old"></span>
+              传统规则分配
+            </span>
+            <span class="legend-item new-legend">
+              <span class="legend-dot new"></span>
+              AI智能分配
+            </span>
+          </div>
+        </div>
+        <div class="comparison-body">
+          <div class="comparison-grid">
+
+            <!-- Metric 1: 分配耗时 -->
+            <div class="comparison-item">
+              <div class="comparison-item-label">分配耗时</div>
+              <div class="comparison-bars">
+                <div class="comp-bar-col">
+                  <div class="comp-bar old" data-height="130">
+                    <span class="comp-bar-value">2小时</span>
+                  </div>
+                  <span class="comp-bar-label">传统</span>
+                </div>
+                <div class="comp-bar-col">
+                  <div class="comp-bar new" data-height="18">
+                    <span class="comp-bar-value" style="position:absolute;top:-22px;color:var(--accent);">3分钟</span>
+                  </div>
+                  <span class="comp-bar-label new-label">AI</span>
+                </div>
+              </div>
+              <div class="comparison-improvement">
+                <span class="improvement-arrow down">&#9660;</span>
+                <span class="improvement-text">效率提升40倍</span>
+              </div>
+            </div>
+
+            <!-- Metric 2: 首次接通率 -->
+            <div class="comparison-item">
+              <div class="comparison-item-label">首次接通率</div>
+              <div class="comparison-bars">
+                <div class="comp-bar-col">
+                  <div class="comp-bar old" data-height="83">
+                    <span class="comp-bar-value">52%</span>
+                  </div>
+                  <span class="comp-bar-label">传统</span>
+                </div>
+                <div class="comp-bar-col">
+                  <div class="comp-bar new" data-height="109">
+                    <span class="comp-bar-value">68%</span>
+                  </div>
+                  <span class="comp-bar-label new-label">AI</span>
+                </div>
+              </div>
+              <div class="comparison-improvement">
+                <span class="improvement-arrow up">&#9650;</span>
+                <span class="improvement-text">提升 +16%</span>
+              </div>
+            </div>
+
+            <!-- Metric 3: 客户满意度 -->
+            <div class="comparison-item">
+              <div class="comparison-item-label">客户满意度</div>
+              <div class="comparison-bars">
+                <div class="comp-bar-col">
+                  <div class="comp-bar old" data-height="83">
+                    <span class="comp-bar-value">3.2/5</span>
+                  </div>
+                  <span class="comp-bar-label">传统</span>
+                </div>
+                <div class="comp-bar-col">
+                  <div class="comp-bar new" data-height="120">
+                    <span class="comp-bar-value">4.5/5</span>
+                  </div>
+                  <span class="comp-bar-label new-label">AI</span>
+                </div>
+              </div>
+              <div class="comparison-improvement">
+                <span class="improvement-arrow up">&#9650;</span>
+                <span class="improvement-text">提升 +1.3分</span>
+              </div>
+            </div>
+
+            <!-- Metric 4: 销售匹配度 -->
+            <div class="comparison-item">
+              <div class="comparison-item-label">销售匹配度</div>
+              <div class="comparison-bars">
+                <div class="comp-bar-col">
+                  <div class="comp-bar old" data-height="78">
+                    <span class="comp-bar-value">61%</span>
+                  </div>
+                  <span class="comp-bar-label">传统</span>
+                </div>
+                <div class="comp-bar-col">
+                  <div class="comp-bar new" data-height="135">
+                    <span class="comp-bar-value">94.6%</span>
+                  </div>
+                  <span class="comp-bar-label new-label">AI</span>
+                </div>
+              </div>
+              <div class="comparison-improvement">
+                <span class="improvement-arrow up">&#9650;</span>
+                <span class="improvement-text">提升 +33.6%</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /layout -->
+
+<script>
+(function() {
+  // ===== Animate grade bars =====
+  setTimeout(function() {
+    var bars = document.querySelectorAll('.grade-bar-fill');
+    bars.forEach(function(bar) {
+      bar.style.width = bar.getAttribute('data-width');
+    });
+  }, 600);
+
+  // ===== Animate load bars =====
+  setTimeout(function() {
+    var loads = document.querySelectorAll('.load-bar-inner');
+    loads.forEach(function(bar) {
+      var val = bar.getAttribute('data-load');
+      if (val) bar.style.width = val + '%';
+    });
+  }, 700);
+
+  // ===== Animate comparison bars =====
+  setTimeout(function() {
+    var compBars = document.querySelectorAll('.comp-bar');
+    compBars.forEach(function(bar) {
+      var h = bar.getAttribute('data-height');
+      if (h) bar.style.height = h + 'px';
+    });
+  }, 900);
+
+  // ===== Live clock =====
+  function updateTime() {
+    var now = new Date();
+    var y = now.getFullYear();
+    var m = String(now.getMonth() + 1).padStart(2, '0');
+    var d = String(now.getDate()).padStart(2, '0');
+    var h = String(now.getHours()).padStart(2, '0');
+    var mi = String(now.getMinutes()).padStart(2, '0');
+    var s = String(now.getSeconds()).padStart(2, '0');
+    var el = document.getElementById('headerTime');
+    if (el) el.textContent = y + '-' + m + '-' + d + ' ' + h + ':' + mi + ':' + s;
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // ===== Mode tab switching =====
+  var tabs = document.querySelectorAll('.mode-tab');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+    });
+  });
+})();
+</script>
+</body>
+</html>
